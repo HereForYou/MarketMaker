@@ -10,7 +10,12 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
     "fs": "^0.0.1-security",
+    "lowdb": "^7.0.1",
+    "moralis": "^2.27.2",
+    "prompt-sync": "^4.2.0",
     "solc": "^0.8.27",
     "web3": "^4.13.0"
   }
