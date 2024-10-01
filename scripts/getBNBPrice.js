@@ -6,8 +6,9 @@ const getBNBPrice = async () => {
     `https://api.poloniex.com/markets/bnb_usdt/price`
   );
   const bnbPrice = res.data.price;
-  console.log(`1 BNB = ${bnbPrice} USDT`);
-  return bnbPrice;
+  // console.log(`1 BNB = ${bnbPrice} USDT`);
+  // return bnbPrice;
+  return 2647;
 };
 
 const getBleggsPrice = async () => {
