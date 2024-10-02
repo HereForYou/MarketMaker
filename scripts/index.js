@@ -70,10 +70,10 @@ const mainFunctionUsingAlgorithm = async () => {
   //======================== input the BNB and BLEGGS token amount
   const bnbAmount = prompt("🖍️  Enter the amount of BNB token: ");
 
-  let bleggsAmount = 0;
-  while (bleggsAmount < 240000) {
-    bleggsAmount = prompt("🖍️  Enter the amount of Bleggs token: ");
-  }
+  // let bleggsAmount = 0;
+  // while (bleggsAmount < 240000) {
+  let bleggsAmount = prompt("🖍️  Enter the amount of Bleggs token: ");
+  // }
 
   //================================================= approve bleggs that you input to router ========= tested successfully ========================================
   // console.log("=====> approving");
@@ -82,16 +82,9 @@ const mainFunctionUsingAlgorithm = async () => {
 
   const numOfUsers = prompt("🖍️  Enter the number of wallets: ");
 
-  const buyRate = prompt(
-    "🖍️  Enter the rate of buy transactions(Must be between 1 and 100): "
-  );
+  const buyRate = prompt("🖍️  Enter the rate of buy transactions(Must be between 1 and 100): ");
 
-  await exploreBuyOrSellIndividually(
-    bnbAmount,
-    bleggsAmount,
-    buyRate,
-    numOfUsers
-  );
+  await exploreBuyOrSellIndividually(bnbAmount, bleggsAmount, buyRate, numOfUsers);
 
   await writeWalletsToJsonFile();
 
