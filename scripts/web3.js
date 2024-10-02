@@ -2,7 +2,14 @@ const { Web3 } = require("web3");
 const axios = require("axios");
 // const web3 = new Web3('https://data-seed-prebsc-1-s1.binance.org:8545'); // bnb testnet
 const web3 = new Web3("https://base-sepolia-rpc.publicnode.com"); // base sepolia testnet
-const { routerAddress, bleggsAddress, pairAddress, myAddress, myPrivateKey } = require("./constant.js");
+const {
+  routerAddress,
+  bleggsAddress,
+  pairAddress,
+  myAddress,
+  myPrivateKey,
+  // mainTokenAddress,
+} = require("./constant.js");
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                                abis                                                                      -
@@ -97,35 +104,41 @@ const balanceOf = async () => {
 //-                                    approve Bleggs to router               Successfully tested                                            -
 //--------------------------------------------------------------------------------------------------------------------------------------------
 const approveBleggsToRouter = async (bleggsAmount, callerAddress) => {
-  console.log("🟡 Appoving started");
+  console.log(`🟡 Appoving BLEGGS token from ${callerAddress} to router is started `, bleggsAmount);
   const receipt = await bleggsContract.methods.approve(routerAddress, bleggsAmount).send({
     from: callerAddress,
   });
-  console.log("🟢 approving BLEGGS token to router is success ", receipt?.transactionHash);
+  console.log(`🔵 approving BLEGGS token from ${callerAddress} to router is success `, receipt?.transactionHash);
 };
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
 //-                                    transfer Bleggs                        Successfully tested                                             -
 //---------------------------------------------------------------------------------------------------------------------------------------------
 const transferBleggs = async (recepiantAddress, bleggsAmount) => {
-  console.log("🟡 Bleggs transferring started");
+  console.log(`🟡 Bleggs transferring started from ${myAccount.address} to ${recepiantAddress}`, bleggsAmount);
   const receipt = await bleggsContract.methods
     .transfer(recepiantAddress, bleggsAmount)
     .send({ from: myAccount.address });
-  console.log("🟢 Bleggs are transferred successfully", receipt?.transactionHash);
+  console.log(
+    `🔵 Bleggs are transferred successfully from ${myAccount.address} to ${recepiantAddress}`,
+    receipt?.transactionHash
+  );
 };
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
 //-                                    transfer Bnb main token                Successfully tested                                             -
 //---------------------------------------------------------------------------------------------------------------------------------------------
 const transferBnb = async (recepiantAddress, bnbAmount) => {
-  console.log("🟡 BNB transferring started");
+  console.log(`🟡 BNB transferring started from ${myAccount.address} to ${recepiantAddress}`);
   const receipt = await web3.eth.sendTransaction({
     from: myAccount.address,
     to: recepiantAddress,
     value: bnbAmount, // amount in wei
   });
-  console.log("🟢 BNB are transferred successfully.", receipt?.transactionHash);
+  console.log(
+    `🔵 BNB is transferred successfully from ${myAccount.address} to ${recepiantAddress}`,
+    receipt?.transactionHash
+  );
 };
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
@@ -147,7 +160,7 @@ const swapExactETHForTokens = async (amountInETH, amountOutMin, addresses, toAdd
       //   gasPrice: "427500000000000000",
       value: amountInETH,
     });
-  console.log("🟢 swaping exact eth for token is success.", receipt?.transactionHash);
+  console.log("🔵 swaping exact eth for token is success.", receipt?.transactionHash);
 };
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
@@ -161,37 +174,39 @@ const swapExactTokensForETHSupportingFeeOnTransferTokens = async (
   deadline,
   callerAddress
 ) => {
-  try {
-    console.log("🟡 swapExactTokensForETHSupportingFeeOnTransferTokens started");
+  // try {
+  console.log(
+    `🟡 swapExactTokensForETHSupportingFeeOnTransferTokens started by ${callerAddress} amount is ${amountIn}`
+  );
 
-    const allowance = await bleggsContract.methods.allowance(callerAddress, routerAddress).call();
-    console.log("allowance", allowance);
-    if (BigInt(allowance) < BigInt(amountIn)) {
-      console.log("Insufficient allowance. Approving tokens...");
-      await bleggsContract.methods.approve(routerAddress, amountIn).send({ from: callerAddress });
-    }
-
-    const gasEstimate = await routerContract.methods
-      .swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, addresses, toAddress, deadline)
-      .estimateGas({ from: callerAddress });
-
-    // console.log("gasEstimate", gasEstimate);
-
-    const gasPrice = await web3.eth.getGasPrice();
-    // console.log("gasPrice", gasPrice);
-
-    const receipt = await routerContract.methods
-      .swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, addresses, toAddress, deadline)
-      .send({
-        from: callerAddress,
-        gas: gasEstimate.toString(),
-        gasPrice: gasPrice.toString(),
-        nonce: await web3.eth.getTransactionCount(callerAddress),
-      });
-    console.log("🟢 swaping exact tokens for eth is success.", receipt?.transactionHash);
-  } catch (err) {
-    console.log("ERROR: ", err);
+  const allowance = await bleggsContract.methods.allowance(callerAddress, routerAddress).call();
+  console.log("allowance", allowance);
+  if (BigInt(allowance) < BigInt(amountIn)) {
+    console.log("Insufficient allowance. Approving tokens...");
+    await bleggsContract.methods.approve(routerAddress, amountIn).send({ from: callerAddress });
   }
+
+  const gasEstimate = await routerContract.methods
+    .swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, addresses, toAddress, deadline)
+    .estimateGas({ from: callerAddress });
+
+  // console.log("gasEstimate", gasEstimate);
+
+  const gasPrice = await web3.eth.getGasPrice();
+  // console.log("gasPrice", gasPrice);
+
+  const receipt = await routerContract.methods
+    .swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, addresses, toAddress, deadline)
+    .send({
+      from: callerAddress,
+      gas: gasEstimate.toString(),
+      gasPrice: gasPrice.toString(),
+      nonce: await web3.eth.getTransactionCount(callerAddress),
+    });
+  console.log(`🔵 swaping exact ${amountIn} tokens for eth is success.`, receipt?.transactionHash);
+  // } catch (err) {
+  // console.log("ERROR: ", err);
+  // }
 };
 
 // const tprivateKeyToAccount = (privateKey) => {
