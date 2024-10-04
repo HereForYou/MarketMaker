@@ -21,3 +21,6 @@
 // };
 
 // module.exports = { getBNBPrice, getBleggsPrice };
+require("dotenv").config({ path: '../.env' });
+const API_KEY = process.env.API_KEY;
+console.log(API_KEY);

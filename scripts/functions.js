@@ -23,7 +23,7 @@ const {
   swapExactETHForTokens,
   privateKeyToAccount,
   getBNBPrice,
-  getEthPrice,
+  // getEthPrice,
   getBleggsPrice,
   swapExactTokensForETHSupportingFeeOnTransferTokens,
 } = require("./web3");
@@ -280,7 +280,7 @@ const writeWalletsToJsonFile = async () => {
 //-               generate random amount of BNB in specific range    Successfully tested              -
 //-----------------------------------------------------------------------------------------------------
 const generateRandomBnb = async () => {
-  let price = await getEthPrice();
+  let price = await getBNBPrice();
   // let price = await getBNBPrice();
   return ((Math.random() * (MAX_BUY - MIN_BUY) + MIN_BUY) / price) * DECIMAL;
 };
@@ -292,12 +292,6 @@ const generateRandomBleggs = async () => {
   let price = await getBleggsPrice();
   return ((Math.random() * (MAX_SELL - MIN_SELL) + MIN_SELL) / price) * DECIMAL;
 };
-
-// const asyncFunction = async () => {
-//   console.log("getEthPrice", await generateRandomBleggs());
-// };
-
-// asyncFunction();
 
 //-----------------------------------------------------------------------------------------------------
 //-               delay the execution of function for nationality of markeet    Successfully tested   -
@@ -322,10 +316,11 @@ const exploreBuyOrSellIndividually = async (bnbAmount, bleggsAmount, buyRate, nu
     const random = Math.round(Math.random() * 100);
     const wallet = await createWallet();
     let bleggsPrice = await getBleggsPrice();
-    let bnbPrice = await getEthPrice();
+    let bnbPrice = await getBNBPrice();
     console.log(`🔶 ${i}th user ${wallet.address} ${wallet.privateKey}`);
     if (random <= buyRate) {
       //==================================================================== generate random amount of BNB to sell in range you want ($15 ~ $55 for test) =====
+      test.buy += 1;
       const randomBnb = await generateRandomBnb();
       //==================================================================== true: bnb amount for but is less than the total bnb amount, otherwise: false =====
       if (randomBnb < totalBalanceOfBnb) {
@@ -345,8 +340,7 @@ const exploreBuyOrSellIndividually = async (bnbAmount, bleggsAmount, buyRate, nu
           wallet.address
         );
         // console.log("🔷 swaping success", i);
-        totalBalanceOfBnb -= randomBnb;
-        test.buy += 1;
+        totalBalanceOfBnb -= randomBnb + BNBPERTEST * DECIMAL;
         console.log("✅ BNB", randomBnb, "(", (randomBnb * bnbPrice) / DECIMAL, ")", "succesfully buyed.");
       } else {
         //================================================================== log the warning message that total BNB amount is not enough for buy ==============
@@ -354,6 +348,7 @@ const exploreBuyOrSellIndividually = async (bnbAmount, bleggsAmount, buyRate, nu
       }
     } else {
       const randomBleggs = await generateRandomBleggs();
+      test.sell += 1;
       if (randomBleggs < totalBalanceOfBleggs) {
         //================================================================== transferring BLEGGS of randomBleggs amount to wallet that sell the BLEGGS =====================
         // console.log("🔶 Bleggs transferring", i);
@@ -365,7 +360,7 @@ const exploreBuyOrSellIndividually = async (bnbAmount, bleggsAmount, buyRate, nu
         //================================================================== the wallet addr is generated sell Bleggs token, then transferred the BNB to this addr =========
         // console.log("🔶 swaping", i);
         await swapExactTokensForETHSupportingFeeOnTransferTokens(
-          randomBleggs * 0.89,
+          randomBleggs * 0.98,
           0,
           [bleggsAddress, mainTokenAddress],
           wallet.address,
@@ -374,7 +369,7 @@ const exploreBuyOrSellIndividually = async (bnbAmount, bleggsAmount, buyRate, nu
         );
         // console.log("🔷swaping success", i);
         totalBalanceOfBleggs -= randomBleggs;
-        test.sell += 1;
+        totalBalanceOfBnb -= BNBPERTEST * DECIMAL;
         console.log("✅ BLEGGS", randomBleggs, "(", (randomBleggs * bleggsPrice) / DECIMAL, ") succesfully sold.");
       } else {
         console.log("⚠️", "Insufficient balance. BLEGGS is not enough for selling");
@@ -384,6 +379,14 @@ const exploreBuyOrSellIndividually = async (bnbAmount, bleggsAmount, buyRate, nu
   }
   console.log(test, test.buy / (test.buy + test.sell), totalBalanceOfBnb, totalBalanceOfBleggs);
 };
+
+// const asyncFunction = async () => {
+//   console.log("getBNBAmount", await generateRandomBnb());
+//   console.log("getBleggsAmount", await generateRandomBleggs());
+//   console.log("getBleggsAmount", await createWallet());
+// };
+
+// asyncFunction();
 
 module.exports = {
   // createWallets,
