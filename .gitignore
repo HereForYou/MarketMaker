@@ -1,3 +1,5 @@
+# .gitignore
 node_modules
 .env
-/scripts/constants.js
+
+/db/*
