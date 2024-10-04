@@ -1,5 +1,4 @@
 # .gitignore
 node_modules
 .env
-
-/db/*
+db

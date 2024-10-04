@@ -86,7 +86,7 @@ const mainFunctionUsingAlgorithm = async () => {
 
   await exploreBuyOrSellIndividually(bnbAmount, bleggsAmount, buyRate, numOfUsers);
 
-  await writeWalletsToJsonFile();
+  // await writeWalletsToJsonFile();
 
   console.log("wallets", wallets);
 };
