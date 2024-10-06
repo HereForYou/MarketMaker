@@ -24,7 +24,6 @@ const {
   getBleggsPrice,
   swapExactTokensForETHSupportingFeeOnTransferTokens,
 } = require("./web3");
-
 const wallets = [];
 let totalBalanceOfBnb = 0;
 let totalBalanceOfBleggs = 0;
