@@ -1,6 +1,5 @@
 const prompt = require("prompt-sync")();
-const { DECIMAL, myAddress } = require("./constant.js");
-const { writeWalletsToJsonFile, exploreBuyOrSellIndividually } = require("./functions.js");
+const { exploreBuyOrSellIndividually } = require("./functions.js");
 
 const mainFunctionUsingAlgorithm = async () => {
   //================================================================================== input the BNB and BLEGGS token amount
@@ -15,9 +14,7 @@ const mainFunctionUsingAlgorithm = async () => {
   const buyRate = prompt("🖍️  Enter the rate of buy transactions(Must be between 1 and 100): ");
 
   //================================================================================== main function perform buy and sell events
-  await exploreBuyOrSellIndividually(bnbAmount, bleggsAmount, buyRate, numOfUsers);
-
-  // await writeWalletsToJsonFile();
+  await exploreBuyOrSellIndividually(bnbAmount, bleggsAmount, numOfUsers, buyRate);
 };
 
-mainFunctionUsingAlgorithm();
+// mainFunctionUsingAlgorithm();

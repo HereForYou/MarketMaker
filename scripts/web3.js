@@ -1,8 +1,11 @@
 require("dotenv").config({ path: "../.env" });
 const { Web3 } = require("web3");
+const fs = require("fs");
 const axios = require("axios");
+const { socketEmit } = require("./socket.js");
 
 const myPrivateKey = process.env.PRIVATE_KEY;
+// console.log("This is private key", myPrivateKey)
 const { routerAddress, bleggsAddress, pairAddress, rpcUrl } = require("./constant.js");
 
 const web3 = new Web3(rpcUrl); // base sepolia testnet
@@ -25,6 +28,29 @@ bleggsContract.handleRevert = true;
 
 const pairContract = new web3.eth.Contract(pairAbi, pairAddress);
 pairContract.handleRevert = true;
+
+//-----------------------------------------------------------------------------------------------------
+//-               create one wallet and add it to accounts          Successfully tested               -
+//-----------------------------------------------------------------------------------------------------
+
+const wallets = [];
+async function createWallet() {
+  const tempWallet = web3.eth.accounts.create();
+
+  await web3.eth.accounts.wallet.add(tempWallet.privateKey);
+  const account = await privateKeyToAccount(tempWallet.privateKey);
+  wallets.push({
+    id: wallets.length,
+    address: account.address,
+    privateKey: account.privateKey,
+    bnb: 0,
+    bleggs: 0,
+  });
+
+  // const jsonWallet = JSON.stringify(wallets);
+  // fs.writeFileSync("./db/wallets.json", jsonWallet);
+  return account;
+}
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                get ETH price in USD                                                                      -
@@ -79,7 +105,12 @@ const privateKeyToAccount = (privateKey) => {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                get my account from my private key                                                        -
 //--------------------------------------------------------------------------------------------------------------------------------------------
-const myAccount = privateKeyToAccount(myPrivateKey);
+
+let myAccount;
+const setMyAccount = (privateKey) => {
+  myAccount = privateKeyToAccount(privateKey);
+  console.log("My account address:", myAccount.address);
+};
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //-                                                get BLEGGS balance of address                                                             -
@@ -92,36 +123,42 @@ const balanceOf = async (ownerAddress) => {
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //-                                    approve Bleggs to router               Successfully tested                                            -
 //--------------------------------------------------------------------------------------------------------------------------------------------
-const approveBleggsToRouter = async (bleggsAmount, callerAddress) => {
+const approveBleggsToRouter = async (bleggsAmount, callerAddress, socketId) => {
   console.log(`🟡 Approving BLEGGS token from one wallet to router is started `);
+  socketEmit(socketId, `🟡 Approving BLEGGS token from one wallet to router is started `);
   const receipt = await bleggsContract.methods.approve(routerAddress, bleggsAmount).send({
     from: callerAddress,
   });
   console.log(`🔵 Approving BLEGGS token from one wallet to router is success `);
+  socketEmit(socketId, `🔵 Approving BLEGGS token from one wallet to router is success `);
 };
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
 //-                                    transfer Bleggs                        Successfully tested                                             -
 //---------------------------------------------------------------------------------------------------------------------------------------------
-const transferBleggs = async (recepiantAddress, bleggsAmount) => {
+const transferBleggs = async (recepiantAddress, bleggsAmount, socketId) => {
   console.log(`🟡 Transferring Bleggs from one to another is started!`);
+  socketEmit(socketId, `🟡 Transferring Bleggs from one to another is started!`);
   const receipt = await bleggsContract.methods
     .transfer(recepiantAddress, bleggsAmount)
     .send({ from: myAccount.address });
   console.log(`🔵 Transferring Bleggs from one to another is success!`);
+  socketEmit(socketId, `🔵 Transferring Bleggs from one to another is success!`);
 };
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
 //-                                    transfer Bnb main token                Successfully tested                                             -
 //---------------------------------------------------------------------------------------------------------------------------------------------
-const transferBnb = async (recepiantAddress, bnbAmount) => {
+const transferBnb = async (recepiantAddress, bnbAmount, socketId) => {
   console.log(`🟡 Transferring BNB from one to another is started!`);
+  socketEmit(socketId, `🟡 Transferring BNB from one to another is started!`);
   const receipt = await web3.eth.sendTransaction({
     from: myAccount.address,
     to: recepiantAddress,
     value: bnbAmount, // amount in wei
   });
   console.log(`🔵 Transferring BNB from one to another is started!`);
+  socketEmit(socketId, `🔵 Transferring BNB from one to another is started!`);
 };
 
 const toHex = (value) => {
@@ -131,8 +168,17 @@ const toHex = (value) => {
 //---------------------------------------------------------------------------------------------------------------------------------------------
 //-                                    swapExactETHForTokens                  Successfully tested                                             -
 //---------------------------------------------------------------------------------------------------------------------------------------------
-const swapExactETHForTokens = async (amountInETH, amountOutMin, addresses, toAddress, deadline, callerAddress) => {
+const swapExactETHForTokens = async (
+  amountInETH,
+  amountOutMin,
+  addresses,
+  toAddress,
+  deadline,
+  callerAddress,
+  socketId
+) => {
   console.log("🟡 Swaping exact ETH for tokens is started");
+  socketEmit(socketId, "🟡 Swaping exact ETH for tokens is started");
 
   const gasEstimate = await routerContract.methods
     .swapExactETHForTokens(amountOutMin, addresses, toAddress, deadline)
@@ -149,6 +195,7 @@ const swapExactETHForTokens = async (amountInETH, amountOutMin, addresses, toAdd
       value: toHex(amountInETH),
     });
   console.log("🔵 Swaping exact ETH for token is success.");
+  socketEmit(socketId, "🔵 Swaping exact ETH for token is success.");
 };
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
@@ -160,9 +207,11 @@ const swapExactTokensForETHSupportingFeeOnTransferTokens = async (
   addresses,
   toAddress,
   deadline,
-  callerAddress
+  callerAddress,
+  socketId
 ) => {
   console.log(`🟡 swapExactTokensForETHSupportingFeeOnTransferTokens is started`);
+  socketEmit(socketId, `🟡 swapExactTokensForETHSupportingFeeOnTransferTokens is started`);
 
   const allowance = await bleggsContract.methods.allowance(callerAddress, routerAddress).call();
   if (BigInt(allowance) < BigInt(amountIn)) {
@@ -186,6 +235,7 @@ const swapExactTokensForETHSupportingFeeOnTransferTokens = async (
       nonce: await web3.eth.getTransactionCount(callerAddress),
     });
   console.log(`🔵 swapExactTokensForETHSupportingFeeOnTransferTokens is success`);
+  socketEmit(socketId, `🔵 swapExactTokensForETHSupportingFeeOnTransferTokens is success`);
 };
 
 module.exports = {
@@ -198,4 +248,6 @@ module.exports = {
   privateKeyToAccount,
   getBNBPrice,
   getBleggsPrice,
+  createWallet,
+  setMyAccount,
 };
