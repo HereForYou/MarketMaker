@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,12 +12,22 @@
   "description": "",
   "dependencies": {
     "axios": "^1.7.7",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "express": "^4.21.1",
     "fs": "^0.0.1-security",
+    "http": "^0.0.1-security",
     "lowdb": "^7.0.1",
     "moralis": "^2.27.2",
     "prompt-sync": "^4.2.0",
+    "socket.io": "^4.8.0",
     "solc": "^0.8.27",
+    "tailwindcss": "^3.4.13",
+    "telegraf": "^4.16.3",
     "web3": "^4.13.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
   }
 }
