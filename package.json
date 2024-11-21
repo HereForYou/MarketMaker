@@ -20,11 +20,14 @@
     "http": "^0.0.1-security",
     "lowdb": "^7.0.1",
     "moralis": "^2.27.2",
-    "nodemon": "^3.1.7",
     "prompt-sync": "^4.2.0",
     "socket.io": "^4.8.0",
     "solc": "^0.8.27",
     "tailwindcss": "^3.4.13",
+    "telegraf": "^4.16.3",
     "web3": "^4.13.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
   }
 }

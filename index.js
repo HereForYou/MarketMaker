@@ -2,9 +2,8 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const { getBNBPrice } = require("./scripts/web3");
 const socketIO = require("./scripts/socket");
-const { exploreBuyOrSellIndividually, writeWalletsToTxtFile, initializeVariables } = require("./scripts/functions");
+const { exploreBuyOrSellIndividually, initializeVariables } = require("./scripts/functions");
 
 const server = express();
 server.use(cors());
@@ -12,17 +11,17 @@ server.use(bodyParser.json());
 
 const serverHttp = require("http").Server(server);
 server.post("/begin", async (req, res) => {
-  console.log("starting...")
   const data = req.body;
-  const privateKey = "0x" + data.privateKey;
+  let privateKey = data.privateKey;
   const socketId = data.socketId;
   console.log("This is request", privateKey, socketId);
   initializeVariables(data.minS, data.maxS, data.minB, data.maxB);
-  writeWalletsToTxtFile(privateKey);
-  if (privateKey.length < 66) {
-    res.json({ err: "Invalid Private Key" });
+  if (!isValidEthereumPrivateKey(privateKey)) {
+    res.json({ err: { name: "Invalid Private Key", reason: "Maybe typing error" } });
     return;
   }
+  privateKey = "0x" + privateKey;
+  let error;
   try {
     await exploreBuyOrSellIndividually(
       data.bnb,
@@ -33,19 +32,13 @@ server.post("/begin", async (req, res) => {
       socketId
     );
     res.json({ msg: "Success" });
-    return;
   } catch (err) {
-    res.json({ err: "Internal Server Error" });
+    console.log(`Error in server: `, err);
+    res.json({ msg: "Internal Server Error", err });
   }
 });
 
-server.get("/", async (req, res) => {
-  res.json({ msg: "Server is running...", BNBPrice: await getBNBPrice() });
-});
-
-serverHttp.listen(5000, () => {
-  console.log("Server is running in 5000 port.");
-});
+serverHttp.listen(5000, () => {});
 
 socketIO.init(serverHttp);
 
@@ -58,5 +51,15 @@ client.get("/", (req, res) => {
 });
 
 clientHttp.listen(5173, () => {
-  console.log("Client is running in 5173 port.");
+  console.log("Running in 5173 port. Open browser with 'http://localhost:5173' url.");
 });
+
+function isValidEthereumPrivateKey(privateKey) {
+  // Check if the private key is a string of 64 hex characters
+  const hexRegex = /^[0-9a-fA-F]{64}$/;
+  if (typeof privateKey === "string" && hexRegex.test(privateKey)) {
+    return true;
+  } else {
+    return false;
+  }
+}
