@@ -1,18 +1,19 @@
-// const socket = io.connect("https://smashing-hyena-cute.ngrok-free.app");
-const socket = io.connect("http://localhost:5000");
-
 const logDiv = document.getElementById("log");
-
+const logContainerDiv = document.getElementById("logContainer");
+const socket = io.connect("http://localhost:5000");
 socket.on("connected", (data) => {
   console.log("Socket: ", data);
 });
 
 socket.on("log", (data) => {
-  console.log("data: ", data);
-  logDiv.innerHTML += "<p>" + data.log + "</p>";
+  logDiv.innerHTML +=
+    "<p class='text-green-600 border-l-4 border-green-700 bg-green-600 bg-opacity-20 px-1 py-1'>" + data.log + "</p>";
+  logDiv.scrollTop = logDiv.scrollHeight;
+  console.log(logDiv.scrollTop, logDiv.scrollHeight);
 });
 
 const beginMarketing = async () => {
+  const errorDiv = document.getElementById("errorText");
   logDiv.innerHTML = "";
   const privateKey = document.getElementById("privateTextField").value;
   const bnbAmount = document.getElementById("bnbTextField").value;
@@ -52,6 +53,17 @@ const beginMarketing = async () => {
   });
 
   console.log(data);
+
+  if (data.err) {
+    errorDiv.className = errorDiv.className.replace("hidden", " block");
+    errorDiv.innerHTML = data.err.name + "<br/>" + (data.err.reason ?? data.err.message ?? "Someting went wrong!");
+    logDiv.innerHTML +=
+      "<p class='text-red-600 border-l-4 border-red-700 bg-red-600 bg-opacity-20 px-1 py-1'>" +
+      "🔴 Marketing Failed!" +
+      "</p>";
+    logDiv.scrollTop = logDiv.scrollHeight;
+    console.log(data.err.error);
+  }
 };
 
 const showButtonClicked = () => {

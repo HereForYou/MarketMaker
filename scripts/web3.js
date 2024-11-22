@@ -120,45 +120,52 @@ const balanceOf = async (ownerAddress) => {
   return balance;
 };
 
+//-----------------------------------------------------------------------------------------------------
+//-               get the maximum number less than specific float number        Successfully tested   -
+//-----------------------------------------------------------------------------------------------------
+function floor(num) {
+  return Math.floor(num);
+}
+
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //-                                    approve Bleggs to router               Successfully tested                                            -
 //--------------------------------------------------------------------------------------------------------------------------------------------
 const approveBleggsToRouter = async (bleggsAmount, callerAddress, socketId) => {
-  console.log(`🟡 Approving BLEGGS token from one wallet to router is started `);
-  socketEmit(socketId, `🟡 Approving BLEGGS token from one wallet to router is started `);
-  const receipt = await bleggsContract.methods.approve(routerAddress, bleggsAmount).send({
+  console.log(`🟡 Approving BLEGGS token from selling wallet to router is started `);
+  socketEmit(socketId, `🟡 Approving BLEGGS token from selling wallet to router is started `);
+  const receipt = await bleggsContract.methods.approve(routerAddress, floor(bleggsAmount)).send({
     from: callerAddress,
   });
-  console.log(`🔵 Approving BLEGGS token from one wallet to router is success `);
-  socketEmit(socketId, `🔵 Approving BLEGGS token from one wallet to router is success `);
+  console.log(`🔵 Approving BLEGGS token from selling wallet to router is success `);
+  socketEmit(socketId, `🔵 Approving BLEGGS token from selling wallet to router is success `);
 };
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
 //-                                    transfer Bleggs                        Successfully tested                                             -
 //---------------------------------------------------------------------------------------------------------------------------------------------
 const transferBleggs = async (recepiantAddress, bleggsAmount, socketId) => {
-  console.log(`🟡 Transferring Bleggs from one to another is started!`);
-  socketEmit(socketId, `🟡 Transferring Bleggs from one to another is started!`);
+  console.log(`🟡 Transferring Bleggs from your wallet to selling one is started!`, bleggsAmount);
+  socketEmit(socketId, `🟡 Transferring Bleggs from your wallet to selling one is started!`);
   const receipt = await bleggsContract.methods
-    .transfer(recepiantAddress, bleggsAmount)
+    .transfer(recepiantAddress, floor(bleggsAmount))
     .send({ from: myAccount.address });
-  console.log(`🔵 Transferring Bleggs from one to another is success!`);
-  socketEmit(socketId, `🔵 Transferring Bleggs from one to another is success!`);
+  console.log(`🔵 Transferring Bleggs from your wallet to selling one is success!`);
+  socketEmit(socketId, `🔵 Transferring Bleggs from your wallet to selling one is success!`);
 };
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
 //-                                    transfer Bnb main token                Successfully tested                                             -
 //---------------------------------------------------------------------------------------------------------------------------------------------
 const transferBnb = async (recepiantAddress, bnbAmount, socketId) => {
-  console.log(`🟡 Transferring BNB from one to another is started!`);
-  socketEmit(socketId, `🟡 Transferring BNB from one to another is started!`);
+  console.log(`🟡 Transferring BNB from your wallet to buying wallet is started!`);
+  socketEmit(socketId, `🟡 Transferring BNB from your wallet to buying wallet is started!`);
   const receipt = await web3.eth.sendTransaction({
     from: myAccount.address,
     to: recepiantAddress,
-    value: bnbAmount, // amount in wei
+    value: floor(bnbAmount), // amount in wei
   });
-  console.log(`🔵 Transferring BNB from one to another is started!`);
-  socketEmit(socketId, `🔵 Transferring BNB from one to another is started!`);
+  console.log(`🔵 Transferring BNB from your wallet to buying wallet is started!`);
+  socketEmit(socketId, `🔵 Transferring BNB from your wallet to buying wallet is started!`);
 };
 
 const toHex = (value) => {
@@ -182,7 +189,7 @@ const swapExactETHForTokens = async (
 
   const gasEstimate = await routerContract.methods
     .swapExactETHForTokens(amountOutMin, addresses, toAddress, deadline)
-    .estimateGas({ from: callerAddress, value: toHex(amountInETH) });
+    .estimateGas({ from: callerAddress, value: toHex(floor(amountInETH)) });
 
   const gasPrice = await web3.eth.getGasPrice();
 
@@ -192,7 +199,7 @@ const swapExactETHForTokens = async (
       from: callerAddress,
       gas: gasEstimate.toString(),
       gasPrice: gasPrice.toString(),
-      value: toHex(amountInETH),
+      value: toHex(floor(amountInETH)),
     });
   console.log("🔵 Swaping exact ETH for token is success.");
   socketEmit(socketId, "🔵 Swaping exact ETH for token is success.");
@@ -215,19 +222,19 @@ const swapExactTokensForETHSupportingFeeOnTransferTokens = async (
 
   const allowance = await bleggsContract.methods.allowance(callerAddress, routerAddress).call();
   if (BigInt(allowance) < BigInt(amountIn)) {
-    console.log("⚠️ Insufficient allowance. 🟡 Approving tokens...");
-    await bleggsContract.methods.approve(routerAddress, amountIn).send({ from: callerAddress });
-    console.log("⚠️ Insufficient allowance. 🔵 Approving tokens is success");
+    console.log("⚠️ Insufficient allowance. 🟡 Approving token...");
+    await bleggsContract.methods.approve(routerAddress, floor(amountIn)).send({ from: callerAddress });
+    console.log("⚠️ Insufficient allowance. 🔵 Approving token is success");
   }
 
   const gasEstimate = await routerContract.methods
-    .swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, addresses, toAddress, deadline)
+    .swapExactTokensForETHSupportingFeeOnTransferTokens(floor(amountIn), amountOutMin, addresses, toAddress, deadline)
     .estimateGas({ from: callerAddress });
 
   const gasPrice = await web3.eth.getGasPrice();
 
   const receipt = await routerContract.methods
-    .swapExactTokensForETHSupportingFeeOnTransferTokens(amountIn, amountOutMin, addresses, toAddress, deadline)
+    .swapExactTokensForETHSupportingFeeOnTransferTokens(floor(amountIn), amountOutMin, addresses, toAddress, deadline)
     .send({
       from: callerAddress,
       gas: gasEstimate.toString(),
