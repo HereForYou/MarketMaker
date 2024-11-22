@@ -11,67 +11,80 @@
   </head>
   <body class="flex">
     <div class="flex justify-center w-full gap-10 pt-20">
-      <div class="flex-col gap-10 w-full justify-center items-center">
-        <h1 class="text-5xl text-blue-600 font-extrabold text-center">Auto Market Maker</h1>
+      <div class="flex-col gap-10 w-full justify-center items-center px-20">
+        <h1 class="text-5xl text-blue-600 font-extrabold text-center mb-10">Auto Market Maker</h1>
         <div class="flex flex-col gap-5 p-2">
           <div class="flex flex-col gap-3 justify-between relative">
-            <p class="text-xl text-yellow-500 font-bold">Your Private Key</p>
+            <p class="text-xl text-blue-600 font-bold">Your Private Key</p>
             <input
               class="border border-black w-full pl-2 py-2 outline-none"
+              placeholder="Input Private Key"
               type="password"
               name="bnb"
+              onchange="handleChangePrivateKey()"
               id="privateTextField" />
-            <div onclick="showButtonClicked()" id="show" class="right-2 top-12 absolute">show</div>
+            <div onclick="showButtonClicked()" id="show" class="right-2 top-12 absolute text-blue-600 font-bold">show</div>
           </div>
-          <div class="flex gap-2">
+          <div class="flex gap-2 justify-between">
             <div class="flex flex-col gap-2">
-              <p class="text-xl text-yellow-500 font-bold">Min Buy</p>
-              <input class="border border-black w-full pl-2 py-2 outline-none" id="minB" />
+              <p class="text-xl text-blue-600 font-bold">Min Buy</p>
+              <input
+                class="border border-black w-full pl-2 py-2 outline-none"
+                id="minB"
+                placeholder="0 < * < Max Buy" />
             </div>
             <div class="flex flex-col gap-2">
-              <p class="text-xl text-yellow-500 font-bold">Max Buy</p>
-              <input class="border border-black w-full pl-2 py-2 outline-none" id="maxB" />
+              <p class="text-xl text-blue-600 font-bold">Max Buy</p>
+              <input class="border border-black w-full pl-2 py-2 outline-none" id="maxB" placeholder="Min Buy < * "/>
             </div>
             <div class="flex flex-col gap-2">
-              <p class="text-xl text-yellow-500 font-bold">Min Sell</p>
-              <input class="border border-black w-full pl-2 py-2 outline-none" id="minS" />
+              <p class="text-xl text-blue-600 font-bold">Min Sell</p>
+              <input class="border border-black w-full pl-2 py-2 outline-none" id="minS" placeholder="0 < * < Max Sell"/>
             </div>
             <div class="flex flex-col gap-2">
-              <p class="text-xl text-yellow-500 font-bold">Max Sell</p>
-              <input class="border border-black w-full pl-2 py-2 outline-none" id="maxS" />
+              <p class="text-xl text-blue-600 font-bold">Max Sell</p>
+              <input class="border border-black w-full pl-2 py-2 outline-none" id="maxS" placeholder="Min Sell < * "/>
             </div>
           </div>
           <div class="flex flex-col gap-3 justify-between">
-            <p class="text-xl text-yellow-500 font-bold">BNB Amount</p>
-            <input class="border border-black w-full pl-2 py-2 outline-none" type="text" name="bnb" id="bnbTextField" />
-          </div>
-          <div class="flex flex-col gap-3 justify-between">
-            <p class="text-xl text-yellow-500 font-bold">BLEGGS Amount</p>
+            <p class="text-xl text-blue-600 font-bold">BNB Amount</p>
             <input
               class="border border-black w-full pl-2 py-2 outline-none"
+              placeholder="BNB amount must be greater than 0"
+              type="text"
+              name="bnb"
+              id="bnbTextField" />
+          </div>
+          <div class="flex flex-col gap-3 justify-between">
+            <p class="text-xl text-blue-600 font-bold">BLEGGS Amount</p>
+            <input
+              class="border border-black w-full pl-2 py-2 outline-none"
+              placeholder="BLEGGS amount must be greater than 0"
               type="text"
               name="bleggs"
               id="bleggsTextField" />
           </div>
           <div class="flex flex-col gap-3 justify-between">
-            <p class="text-xl text-yellow-500 font-bold">Number of Wallets</p>
+            <p class="text-xl text-blue-600 font-bold">Number of Wallets</p>
             <input
               class="border border-black w-full pl-2 py-2 outline-none"
+              placeholder="Number of wallets must be integer."
               type="text"
               name="numWallets"
               id="numWalletsTextField" />
           </div>
           <div class="flex flex-col gap-3 justify-between">
-            <p class="text-xl text-yellow-500 font-bold">Purchase Rate</p>
+            <p class="text-xl text-blue-600 font-bold">Purchase Rate</p>
             <input
               class="border border-black w-full pl-2 py-2 outline-none"
+              placeholder="Buy Rate must be the number between 0 and 100"
               type="text"
               name="rate"
               id="rateTextField" />
           </div>
           <button
             id="beginMarketing"
-            class="px-8 py-2 border rounded-lg bg-green-600 text-white text-lg font-bold hover:bg-green-700 transition-all"
+            class="px-8 py-2 border rounded-lg bg-blue-600 text-white text-lg font-bold hover:bg-blue-700 transition-all hover:scale-110"
             onclick="beginMarketing()">
             Begin Marketing
           </button>
@@ -79,13 +92,10 @@
       </div>
       <div class="w-full flex flex-col gap-10 h-[800px]">
         <h1 class="text-5xl text-blue-600 font-extrabold text-center">Log Data</h1>
-        <div id="log" class="max-h-[800px] flex w-full h-full justify-center items-center">
-          <p class="text-2xl">Here you can check the marketing progress</p>
+        <div id="log" class="max-h-[800px] flex flex-col w-full h-full">
+          <p class="text-2xl text-center self-center justify-self-center">Here you can check the marketing progress</p>
         </div>
       </div>
     </div>
-    <script>
-      // document.getElementById('beginMarketing').addEventListener('click', beginMarketing())
-    </script>
   </body>
 </html>
